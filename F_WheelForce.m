@@ -1,0 +1,50 @@
+function Fw=F_WheelForce(s,Fz)
+
+
+%Fw=Cx.*s-(Cx.*s).^2./(3.*mu.*Fz)+(Cx.*s).^3./(27.*(mu.*Fz).^2);
+p_Cx1=1.6411;
+p_Dx1=1.1739;
+p_Dx2=-0.1639;
+p_Dx3=0;
+p_Ex1=0.4640;
+p_Ex2=0.2502;
+p_Ex3=0.0678;
+p_Ex4=-0.0000376;
+p_Kx1=22.303;
+p_Kx2=0.488;
+p_Kx3=0.2125;
+p_Hx1=0.00122;
+p_Hx2=0.0004318;
+p_Vx1=-0.000008809;
+p_Vx2=0.0000186;
+Fz0=4800;  %Nominal wheel load;
+%Fz=[2000,4000,6000];
+dfz=(Fz-Fz0)/Fz0;
+Gama=-0.261;
+Namda_nx=1;
+Namda_Cx=1;
+kesi_1=1;
+Namda_ux=1;
+Namda_Ex=1;
+Namda_Kx=1;
+Namda_Hx=1;
+Namda_Vx=1;
+S_Hx=(p_Hx1+p_Hx2.*dfz).*Namda_Hx;
+S_Vx=Fz.*(p_Vx1+p_Vx2.*dfz).*Namda_Vx.*Namda_ux.*kesi_1;
+k_x1=s+S_Hx(1);
+% k_x2=k+S_Hx(2);
+% k_x3=k+S_Hx(3);
+mu_x=(p_Dx1+p_Dx2.*dfz).*(1-p_Dx3.*Gama^2).*Namda_ux;
+C_x=p_Cx1*Namda_Cx;
+D_x=mu_x.*Fz*kesi_1;
+E_x1=(p_Ex1+p_Ex2.*dfz(1)+p_Ex3.*dfz(1)^2)*(1-p_Ex4*sign(k_x1)).*Namda_Ex;
+% E_x2=(p_Ex1+p_Ex2.*dfz(2)+p_Ex3.*dfz(2)^2)*(1-p_Ex4*sign(k_x2)).*Namda_Ex;
+% E_x3=(p_Ex1+p_Ex2.*dfz(3)+p_Ex3.*dfz(3)^2)*(1-p_Ex4*sign(k_x3)).*Namda_Ex;
+K_x=Fz.*(p_Kx1+p_Kx2.*dfz).*exp(p_Kx3.*dfz).*Namda_Kx;
+B_x=K_x/(C_x*D_x);
+
+Gama_x=Gama*Namda_nx;
+
+Fw=0.6.*D_x(1).*sin(C_x.*atan(B_x.*k_x1-E_x1.*(B_x.*k_x1-atan(B_x.*k_x1)))+S_Vx(1));
+% Fx2=D_x(2).*sin(C_x.*atan(B_x.*k_x2-E_x2.*(B_x.*k_x2-atan(B_x.*k_x2)))+S_Vx(2));
+% Fx3=D_x(3).*sin(C_x.*atan(B_x.*k_x3-E_x3.*(B_x.*k_x3-atan(B_x.*k_x3)))+S_Vx(3));
